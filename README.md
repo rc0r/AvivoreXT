@@ -16,3 +16,9 @@ I am certainly open to new data sets that it could pull. E-mail addresses were c
 that I was writing all of this, I was not as interested in that information.
 
 Anyway, if you're seeing this before March 4th, consider it a surprise treat!
+
+###Requirements
+* Python 3
+* SQLite and Twitter modules (pip install twitter)
+
+No Twitter account is required for access.
