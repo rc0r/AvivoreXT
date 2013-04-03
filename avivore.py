@@ -132,10 +132,13 @@ def InitDatabase(status, filename):
         DBCur = DBCon.cursor()
         DBCur.execute("SELECT Count(*) FROM Data")
         Output(str(DBCur.fetchone()[0]) + " entries in this database so far.")
+	'''
+        # Removed the items below due to a bug. It's not needed really.
         DBCur.execute("SELECT * FROM Data ORDER BY TimeRecv ASC LIMIT 1")
         print DBCur.fetchone()[0]
         DatabaseFirstWrite = float(DBCur.fetchone()[0]) + 2
         Output("Database first written to " + str(DataBaseFirstWrite))
+        '''
     else: # If the database doesn't exist, we'll create it.
         if status == 1: # If we desire to save the database, it will output this message.
             Output("Creating a new database to store data!")
@@ -164,11 +167,12 @@ Here we go!
 if __name__ == "__main__":
     # This stuff will be customisable eventually.
     DBPath = "avivore.db"
-    SoftwareInitMsg("1.0")
+    SoftwareInitMsg("1.0.1")
     InitDatabase(0, DBPath)
     try:
         Main()
     except KeyboardInterrupt:
         SoftwareExit(0, "Exiting the application.")
     except:
+        Main()
         raise
