@@ -15,7 +15,8 @@ Windows, or any other platform capable of running Python.
 I am certainly open to new data sets that it could pull. E-mail addresses were considered but at the time 
 that I was writing all of this, I was not as interested in that information.
 
-Anyway, if you're seeing this before March 4th, consider it a surprise treat!
+This tool is intended to be used for demonstration purposes and has some of my keyword searches removed. 
+It was first presented at BSides Vancouver on March 4th, 2013.
 
 ###Requirements
 * Python 3
