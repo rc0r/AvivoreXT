@@ -1,4 +1,4 @@
-#Avivore hlt99-m0d
+#AvivoreXT
 ###The Twitter-searching Data Miner
 
 Avivore is a Python-based tool that searches Twitter for keywords and then parses any tweets that are
@@ -17,5 +17,6 @@ has only been tested on Ubuntu Linux but there should be no real reason for it n
 Windows, or any other platform capable of running Python.
 
 ###Requirements
-* Python 3
-* SQLite and Twitter modules (pip install twitter)
+* Python 2.7, 3
+* SQLite3
+* Twitter-Application-Only-Authentication-OAuth-Python (https://github.com/hlt99/Twitter-Application-Only-Authentication-OAuth-Python)
