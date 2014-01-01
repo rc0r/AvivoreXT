@@ -179,7 +179,7 @@ def InitDatabase(status, filename):
         DBCur.execute("CREATE TABLE Data (TimeRecv int, Type int, User text, UserId text, Value text, TID int, Message text)")
 
 def SoftwareInitMsg(version):
-    print "AvivoreXT", version, "by hlt99 (https://github.com/hlt99)"
+    print "AvivoreXT", version, "by rc0r (https://github.com/rc0r)"
 
 def CheckUsage(argv):
 	if(len(argv)!=2):
