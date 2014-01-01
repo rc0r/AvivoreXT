@@ -68,4 +68,13 @@ Running AvivoreXT is quite easy:
 	# start mining
 	$ python ./avivore.py avivore.conf
 
-Have fun!
+
+### Screenshots
+
+AvivoreXT v1.1.1 Backend
+
+![ScreenShot](https://raw.github.com/rc0r/AvivoreXT/master/scrots/AvivoreXT-v111-Backend.png)
+
+AvivoreXT Web Frontend (very early development state)
+
+![ScreenShot](https://raw.github.com/rc0r/AvivoreXT/master/scrots/AvivoreXT-v111-Webfront.png)
