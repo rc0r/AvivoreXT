@@ -16,6 +16,7 @@ Here are the various settings we'll want to use for the application.
 """
 TwitterInstance = None
 TwitterSearchTerms = []
+TwitterTrackKeywords = None
 TwitterSearchTypes = []
 TwitterSearchInterval = 30 # You'll want to set this to ten seconds or higher.
 BearerToken = None
@@ -42,7 +43,7 @@ def TwitterAuth(credsFile):
 		oauth_dance("twatting_search_cli", ConsumerKey, ConsumerSecret, MY_TWITTER_CREDS)
 
 	oauth_token, oauth_secret = read_token_file(MY_TWITTER_CREDS)
-	twitter = Twitter(auth=OAuth(oauth_token, oauth_secret, ConsumerKey, ConsumerSecret))
+	twitter = TwitterStream(auth=OAuth(oauth_token, oauth_secret, ConsumerKey, ConsumerSecret), )
 	return twitter
 
 def TwitterSearch(string):
@@ -84,24 +85,28 @@ def Main():
 #     BearerToken = TwitterAuth()
     global TwitterInstance
     TwitterInstance = TwitterAuth(CredsFile)
-    while 1:
-        for x in TwitterSearchTerms:
-            TwitData = TwitterSearch(x)
-            if TwitData is None: # With the defaults, it's unlikely that this message will come up.
-                message = "Nothing found for \"" + x + "\". Waiting " + str(TwitterSearchInterval) + " seconds to try again."
-                Output(message)
-            else:
-                for y in TwitterSearch(x):
-                    z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
-                    result = TwitterReadTweet(z[3])
-                    if result[0] < 0:
-                        pass
-                    else: # If something is found, then we'll process the tweet
-                        Stored = Stored, int(z[0])
-                        string = result[0], z[2], str(result[1]), z[0], z[3], z[4] # result value, time, result itself, tweet ID, tweet itself, userId
-                        message = ProcessTweet(string)
-                        Output(message)
-            time.sleep(TwitterSearchInterval) # This will pause the script 
+    iterator = TwitterInstance.statuses.filter(track=TwitterTrackKeywords)
+#     while 1:
+#        for x in TwitterSearchTerms:
+#            TwitData = TwitterSearch(x)
+    for y in iterator:
+#             if TwitData is None: # With the defaults, it's unlikely that this message will come up.
+#                 message = "Nothing found for \"" + x + "\". Waiting " + str(TwitterSearchInterval) + " seconds to try again."
+#                 Output(message)
+#             else:
+#                 for y in TwitterSearch(x):
+	    if 'id' in y and 'created_at' in y and 'user' in y and 'text' in y:
+# 	        print y
+                z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
+                result = TwitterReadTweet(z[3])
+                if result[0] < 0:
+                    pass
+                else: # If something is found, then we'll process the tweet
+                    Stored = Stored, int(z[0])
+                    string = result[0], z[2], str(result[1]), z[0], z[3], z[4] # result value, time, result itself, tweet ID, tweet itself, userId
+                    message = ProcessTweet(string)
+                    Output(message)
+#             time.sleep(TwitterSearchInterval) # This will pause the script 
 
 def ReadConfig(string):
 	# Very quick and really dirty! >:-}
@@ -110,6 +115,7 @@ def ReadConfig(string):
 	global CredsFile
 	global TwitterSearchTypes
 	global TwitterSearchInterval
+	global TwitterTrackKeywords
 	global TwitterSearchTerms
 	global ConsumerKey
 	global ConsumerSecret
@@ -140,6 +146,7 @@ def ReadConfig(string):
 	DBPath = config.get('database', 'dbpath', 0)
 	CredsFile = config.get('twitter_auth', 'credentials_file', 0)
 	TwitterSearchInterval = int(config.get('twitter_search', 'interval', 0))
+	TwitterTrackKeywords = config.get('twitter_search', 'stream_tracking_keyword', 0)
 
 def Output(string):
     # Default text output for the console.

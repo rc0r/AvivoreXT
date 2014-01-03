@@ -24,27 +24,19 @@ AvivoreXT is based on Avivore originally developed by Colin Keigher
 
 * Python 2.7, 3
 * SQLite3
-* Twitter-Application-Only-Authentication-OAuth-Python  
-(https://github.com/rc0r/Twitter-Application-Only-Authentication-OAuth-Python)
+* Python Twitter API (https://github.com/RouxRC/twitter)
 
 
 ###Installation
 
 Follow these installation steps:
 
-1.	Clone AvivoreXT repository:  
+1.	Install dependencies as required!
+
+2.	Clone AvivoreXT repository:  
   
 		$ git clone https://github.com/rc0r/AvivoreXT
 
-2.	Clone Twitter-App-Only-OAuth repository:  
-  
-		$ git clone https://github.com/rc0r/Twitter-Application-Only-Authentication-OAuth-Python
-
-3.	Copy oauth.py into AvivoreXT directory:  
-  
-		$ cp Twitter-Application-Only-Authentication-OAuth-Python/oauth.py AvivoreXT/
-
-4.	Install remaining dependencies as required!
 
 Now you're almost good to go. Check the next section for configuration and
 usage instructions.
