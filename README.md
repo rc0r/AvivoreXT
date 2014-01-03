@@ -28,7 +28,7 @@ AvivoreXT is based on Avivore originally developed by Colin Keigher
 (https://github.com/rc0r/Twitter-Application-Only-Authentication-OAuth-Python)
 
 
-### Installation
+###Installation
 
 Follow these installation steps:
 
@@ -50,7 +50,7 @@ Now you're almost good to go. Check the next section for configuration and
 usage instructions.
 
 
-### Configuration & Usage
+###Configuration & Usage
 
 First, an AvivoreXT configuration file needs to be created. Probably the easiest
 way to do this is to make a copy from the provided sample configuration file.
@@ -69,7 +69,7 @@ Running AvivoreXT is quite easy:
 	$ python ./avivore.py avivore.conf
 
 
-### Screenshots
+###Screenshots
 
 AvivoreXT v1.1.1 Backend
 

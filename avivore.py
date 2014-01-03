@@ -2,7 +2,8 @@
 # -*- coding: utf8 -*-
 
 import time
-from oauth import *
+from twitter import *
+# from oauth import *
 import re
 import sys
 import os
@@ -13,10 +14,12 @@ import ConfigParser
 """
 Here are the various settings we'll want to use for the application.
 """
+TwitterInstance = None
 TwitterSearchTerms = []
 TwitterSearchTypes = []
 TwitterSearchInterval = 30 # You'll want to set this to ten seconds or higher.
 BearerToken = None
+CredsFile = None
 ConsumerKey = None
 ConsumerSecret = None
 DBPath = None
@@ -33,16 +36,21 @@ def is_sequence(arg):
 """
 Twitter-related functions.
 """
-def TwitterAuth():
-	BearerToken = get_bearer_token(ConsumerKey,ConsumerSecret) # generates a bearer token
-	return BearerToken
+def TwitterAuth(credsFile):
+	MY_TWITTER_CREDS = os.path.expanduser(credsFile)
+	if not os.path.exists(MY_TWITTER_CREDS):
+		oauth_dance("twatting_search_cli", ConsumerKey, ConsumerSecret, MY_TWITTER_CREDS)
+
+	oauth_token, oauth_secret = read_token_file(MY_TWITTER_CREDS)
+	twitter = Twitter(auth=OAuth(oauth_token, oauth_secret, ConsumerKey, ConsumerSecret))
+	return twitter
 
 def TwitterSearch(string):
     try:
-          search_results = search_for_a_tweet(BearerToken, string) # does a very basic search
-	  output = search_results['statuses']
+	TwitterRetr = TwitterInstance.search.tweets(q=string)
+	output = TwitterRetr['statuses']
     except:
-        output = None # If this bombs out, we have the option of at least spitting out a result.
+	output = None # If this bombs out, we have the option of at least spitting out a result.
     return output
 
 def TwitterReadTweet(string):
@@ -72,8 +80,10 @@ Various functions for this application.
 def Main():
     LastAction = time.time() # Sets the initial time to start our scan. It's not used however.
     Stored = []
-    global BearerToken
-    BearerToken = TwitterAuth()
+#     global BearerToken
+#     BearerToken = TwitterAuth()
+    global TwitterInstance
+    TwitterInstance = TwitterAuth(CredsFile)
     while 1:
         for x in TwitterSearchTerms:
             TwitData = TwitterSearch(x)
@@ -97,6 +107,7 @@ def ReadConfig(string):
 	# Very quick and really dirty! >:-}
 	# Feel free to do some clean up...
 	global DBPath
+	global CredsFile
 	global TwitterSearchTypes
 	global TwitterSearchInterval
 	global TwitterSearchTerms
@@ -127,6 +138,7 @@ def ReadConfig(string):
 	ConsumerKey = config.get('twitter_auth', 'consumer_key', 0)
 	ConsumerSecret = config.get('twitter_auth', 'consumer_secret', 0)
 	DBPath = config.get('database', 'dbpath', 0)
+	CredsFile = config.get('twitter_auth', 'credentials_file', 0)
 	TwitterSearchInterval = int(config.get('twitter_search', 'interval', 0))
 
 def Output(string):
