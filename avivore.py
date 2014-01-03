@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf8 -*-
 
 import time
 from oauth import *
@@ -21,6 +22,15 @@ ConsumerSecret = None
 DBPath = None
 
 """
+Helper functions
+"""
+# check if arg is list, tuple, ...
+def is_sequence(arg):
+	return (not hasattr(arg, "strip") and
+		hasattr(arg, "__getitem__") or
+		hasattr(arg, "__iter__"))
+
+"""
 Twitter-related functions.
 """
 def TwitterAuth():
@@ -40,19 +50,21 @@ def TwitterReadTweet(string):
 	for x in TwitterSearchTypes:
 		i=i+1
 		FindType = re.compile(x)
-		result = FindType.findall(string)
-		if result == []:
+		result_raw = FindType.findall(string)
+		if result_raw == []:
 			continue
 		else:
-			return i, result[0]
+			if(is_sequence(result_raw[0])):
+				result = [x for x in result_raw[0] if x]
+			else:
+				result = result_raw[0]
+
+			if(is_sequence(result)):
+				result = result[0]
+				
+			return i, result
 	# nothing found
 	return -1, 0
-
-# def ValidNumber(num): # This will filter out non-NANP numbers. It's not fool-proof but good enough.
-#     string = re.sub("[^0-9]", "", str(num))
-#     if int(string[:1]) == 0 or len(string) != 10:
-#         string = 0
-#     return string
 
 """
 Various functions for this application.
@@ -76,7 +88,7 @@ def Main():
                         pass
                     else: # If something is found, then we'll process the tweet
                         Stored = Stored, int(z[0])
-                        string = result[0], z[2], result[1], z[0], z[3], z[4] # result value, time, result itself, tweet ID, tweet itself, userId
+                        string = result[0], z[2], str(result[1]), z[0], z[3], z[4] # result value, time, result itself, tweet ID, tweet itself, userId
                         message = ProcessTweet(string)
                         Output(message)
             time.sleep(TwitterSearchInterval) # This will pause the script 
