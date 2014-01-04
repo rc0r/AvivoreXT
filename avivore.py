@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-import time
 from twitter import *
-# from oauth import *
+from oauth import *
 import re
-# import urllib
 import sys
 import os
 import sqlite3 as lite
 import ConfigParser
+import threading
 
 """
 Helper functions
 """
-# check if arg is list, tuple, ...
+
+
 def is_sequence(arg):
+    # check if arg is list, tuple, ...
     return (not hasattr(arg, "strip") and
             hasattr(arg, "__getitem__") or
             hasattr(arg, "__iter__"))
@@ -62,8 +63,6 @@ class AvivoreConfig:
         self.twitter_search_interval = int(self.config.get('twitter_search', 'interval', 0).strip("'\""))
         self.twitter_track_keywords = self.config.get('twitter_search', 'stream_tracking_keyword', 0).strip(" '\"")
 
-#       self.twitter_track_keywords = urllib.quote(self.config.get('twitter_search',
-#                                           'stream_tracking_keyword', 0)).strip("'\"").replace('%2C', ',')
 
     def init_database(self, status):
         if os.path.isfile(self.database_path):
@@ -94,12 +93,21 @@ class Avivore:
         assert isinstance(avivore_config, AvivoreConfig)
         self.avivore_config = avivore_config
         self.twitter_stream_instance = None
-        self.twitter_instance = None
+        #self.twitter_instance = None
         self.twitter_bearer_token = None
 
     """
     Twitter-related functions.
     """
+
+    def twitter_auth(self):
+        # perform application only auth for normal search queries
+        # this could be replaced by the method used in twitter_stream_auth()
+        # to get rid of the OAuth (import * from oauth) dependency
+        self.twitter_bearer_token = get_bearer_token(self.avivore_config.twitter_consumer_key,
+                                                     self.avivore_config.twitter_consumer_secret)
+        return self.twitter_bearer_token
+
 
     def twitter_stream_auth(self):
         my_twitter_creds = os.path.expanduser(self.avivore_config.credentials_file)
@@ -119,8 +127,8 @@ class Avivore:
 
     def twitter_search(self, search_string):
         try:
-            twitter_retr = self.twitter_instance.search.tweets(q=search_string)
-            output = twitter_retr['statuses']
+            search_results = search_for_a_tweet(self.twitter_bearer_token, search_string)
+            output = search_results['statuses']
         except:
             output = None   # If this bombs out, we have the option of at least spitting out a result.
         return output
@@ -182,22 +190,73 @@ class Avivore:
             #lid = cur.lastrowid
 
 
-"""
-Various functions for this application.
-"""
+class QueryThread(threading.Thread):
+    def __init__(self, avivore):
+        self.avivore = avivore
+        threading.Thread.__init__(self)
 
+    def run(self):
+        Output("Spawning query thread [Q].")
+        twitter_query_main(self.avivore)
+
+
+query_thread = None
 
 def main(argv):
+    # create AvivoreConfig instance
     config = AvivoreConfig(argv[1])
+    # read & parse config file
     config.read_config()
+    # prepare database
     config.init_database(0)
 
-    stored = []
+    # create Avivore instance
     avivore = Avivore(config)
-    twitter_stream_inst = avivore.twitter_stream_auth()
-    print config.twitter_track_keywords
 
-    iterator = twitter_stream_inst.statuses.filter(track=config.twitter_track_keywords)
+    # spawn twitter search query thread
+    global query_thread
+    query_thread = QueryThread(avivore)
+    query_thread.setDaemon(True)
+    query_thread.start()
+
+    # continue with twitter stream monitoring
+    twitter_stream_main(avivore)
+
+# performs classic search queries with configured time interval
+def twitter_query_main(avivore):
+    stored = []
+    avivore.twitter_auth()
+    while 1:
+        for x in avivore.avivore_config.twitter_search_terms:
+            twit_data = avivore.twitter_search(x)
+            if twit_data is None:   # with defaults, it's unlikely that this
+                                    # will come up
+                message = "Nothing found for \"" + x + "\". Waiting " +\
+                          str(avivore.avivore_config.twitter_search_interval) +\
+                          " seconds to try again."
+                Output("[Q] "+str(message))
+            else:
+                for y in avivore.twitter_search(x):
+                    z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
+                    result = avivore.twitter_read_tweet(z[3])
+                    if result[0] < 0:
+                        pass
+                    else:   # If something is found, then we'll process the tweet
+                        stored = stored, int(z[0])
+                        # result value, time, result itself, tweet ID, tweet itself, userId
+                        string = result[0], z[2], str(result[1]), z[0], z[3], z[4]
+                        message = avivore.process_tweet(string)
+                        if 0 != message:
+                            Output("[Q] " + str(message))
+            time.sleep(avivore.avivore_config.twitter_search_interval)
+
+
+# continuously checks twitter stream API
+def twitter_stream_main(avivore):
+    stored = []
+    twitter_stream_inst = avivore.twitter_stream_auth()
+
+    iterator = twitter_stream_inst.statuses.filter(track=avivore.avivore_config.twitter_track_keywords)
 
     for y in iterator:
         if 'id' in y and 'created_at' in y and 'user' in y and 'text' in y:
@@ -211,7 +270,8 @@ def main(argv):
                 # result value, time, result itself, tweet ID, tweet itself, userId
                 string = result[0], z[2], str(result[1]), z[0], z[3], z[4]
                 message = avivore.process_tweet(string)
-                Output(message)
+                if 0 != message:
+                    Output("[S] " + str(message))
 
 
 def Output(string):
@@ -239,11 +299,8 @@ def SoftwareExit(status, message):
     sys.exit(status)
 
 
-"""
-Here we go!
-"""
 if __name__ == "__main__":
-    SoftwareInitMsg("1.2")
+    SoftwareInitMsg("1.2.1")
     CheckUsage(sys.argv)
     try:
         main(sys.argv)
