@@ -4,9 +4,9 @@
 
 AvivoreXT is a multi-threaded, Python-based tool that searches Twitter for keywords and then parses any tweets that are found. For maximum data coverage AvivoreXT uses a mix of issuing classic search queries to the Twitter API and monitoring the Twitter Sreaming API.  
 
-A configuration file defines search terms and regular expressions that are used to extract data. It presently uses a SQLite backend to store the data that is found and outputs results via a stdout.
+A configuration file defines search terms and regular expressions that are used to extract data. It presently uses a SQLite back-end to store the data that is found and outputs results via stdout.
 
-With the sample configuration file Avivore looks for the following sort of data:
+With the sample configuration file AvivoreXT looks for the following sort of data:
 
 * Phone numbers in NPA-NXX format (ex: 604-555-1212)
 * IPv4 addresses (127.0.0.1)
@@ -28,7 +28,7 @@ AvivoreXT is based on Avivore originally developed by Colin Keigher
 
 Optional:
 
-* sqliteboy (https://github.com/nopri/sqliteboy) for SQLite web frontend
+* sqliteboy (https://github.com/nopri/sqliteboy) for SQLite web front-end
 
 
 ###Installation
@@ -73,12 +73,19 @@ Running AvivoreXT is quite easy:
 When AvivoreXT is executed for the first time you'll be redirected to your browser to authenticate AvivoreXT to your user account. This is necessary because access to the Twitter Streaming API requires user based authentication. After you approved AvivoreXT in your browser, a PIN number is displayed. Switch back to the terminal and enter it. This step has to be performed only once. The generated user tokens will be stored in the credentials file that was set in the configuration file (option `credentials_file` in section `twitter_auth`).
 
 
+###Notes on a front-end
+
+Since AvivoreXT uses a SQLite3 database there exist quite a few options to use some kind of graphical front-end for database management and inspection. Recently I have been using [sqliteboy](https://github.com/nopri/sqliteboy) (see screenshots below) as it is quite lean, provides a clean web interface and allows for remote database access.
+
+If the need arises for special AvivoreXT-related features, it's conceivable to integrate a similar interface into AvivoreXT with some useful extensions. If you think there's such a feature or AvivoreXT should have an integrated front-end, just let me know. Ideas and feature requests are always welcome.
+
+
 ###Screenshots
 
-AvivoreXT v1.2.1 Backend
+AvivoreXT v1.2.1 back-end
 
 ![ScreenShot](https://raw.github.com/rc0r/AvivoreXT/master/scrots/AvivoreXT-Backend.png)
 
-sqliteboy featured Web Frontend
+[sqliteboy](https://github.com/nopri/sqliteboy) featured web front-end
 
 ![ScreenShot](https://raw.github.com/rc0r/AvivoreXT/master/scrots/AvivoreXT-Webfront.png)
