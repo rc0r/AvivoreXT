@@ -382,7 +382,7 @@ def SoftwareExit(status, message):
 
 
 if __name__ == "__main__":
-    SoftwareInitMsg("1.2.1")
+    SoftwareInitMsg("1.2.2")
     CheckUsage(sys.argv)
     try:
         main(sys.argv)
