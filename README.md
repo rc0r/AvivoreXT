@@ -14,21 +14,19 @@ With the sample configuration file AvivoreXT looks for the following sort of dat
 
 **Of course, more data sets can be defined in the configuration file.**
 
-AvivoreXT is based on Avivore originally developed by Colin Keigher
-(https://github.com/ColinKeigher/Avivore).
+AvivoreXT is based on Avivore originally developed by [Colin Keigher](https://github.com/ColinKeigher/Avivore).
 
 
 ###Requirements
 
 * Python 2.7+
 * SQLite3
-* Python Twitter API (https://github.com/RouxRC/twitter)
-* Twitter-Application-Only-Authentication-OAuth-Python  
-(https://github.com/rc0r/Twitter-Application-Only-Authentication-OAuth-Python)
+* [Python Twitter API](https://github.com/RouxRC/twitter)
+* [Twitter-Application-Only-Authentication-OAuth-Python](https://github.com/rc0r/Twitter-Application-Only-Authentication-OAuth-Python)
 
 Optional:
 
-* sqliteboy (https://github.com/nopri/sqliteboy) for SQLite web front-end
+* [sqliteboy](https://github.com/nopri/sqliteboy) for SQLite web front-end
 
 
 ###Installation
@@ -68,9 +66,15 @@ Running AvivoreXT is quite easy:
 	$ cp sample.conf avivore.conf
 	# edit config file according to needs
 	# start mining
-	$ python ./avivore.py avivore.conf
+	$ python ./avivore.py -c avivore.conf
 	
 When AvivoreXT is executed for the first time you'll be redirected to your browser to authenticate AvivoreXT to your user account. This is necessary because access to the Twitter Streaming API requires user based authentication. After you approved AvivoreXT in your browser, a PIN number is displayed. Switch back to the terminal and enter it. This step has to be performed only once. The generated user tokens will be stored in the credentials file that was set in the configuration file (option `credentials_file` in section `twitter_auth`).
+
+An alternative to using a classic configuration file is to use a SQLite3 database that holds the AvivoreXT settings. Check out the provided `sample_conf.db` for the necessary tables and table layouts. It is possible to use the same database file for configuration and data storage. When using an appropriate front-end database configuration allows for remote miner setup. To run AvivoreXT with a database configuration use:
+
+	$ python ./avivore.py -d sample_conf.db
+
+Be sure to add both `consumer_key` and `consumer_secret` in table `config` of `sample_conf.db` before running AvivoreXT!
 
 
 ###Notes on a front-end
