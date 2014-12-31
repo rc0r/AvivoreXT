@@ -37,7 +37,8 @@ Optional:
 ###Installation
 
 Follow these installation steps in order to install AvivoreXT in a virtual
-python environment:
+python environment. In case `virtualenv` is not available on your system, you'll need to install
+package `python-virtualenv` for Debian/Ubuntu based distros or Archlinux.
 
 1. Clone AvivoreXT repository:
 
@@ -48,9 +49,6 @@ python environment:
 
         $ cd AvivoreXT
         $ virtualenv -p /usr/bin/python2.7 venv
-
-In case `virtualenv` is not available on your system, you'll need to install
-package `python-virtualenv` for Debian/Ubuntu based distros or Archlinux.
 
 3. Switch to virtual environment:
 
@@ -135,8 +133,8 @@ know where to start? Following you'll find a (rather incomplete) list of things
 that would be nice to have:  
 
 * python3 support
-* proper `setup.py` setup script (work in progress, see [#12](https://github.com/rc0r/AvivoreXT/issues/12))
 * notification support (see [#8](https://github.com/rc0r/AvivoreXT/issues/8))
+* add more data sources (just to name a few: pastebin, google, facebook, reddit)
 * tests! (perspective: some integrated build, test, deployment work flow)
 * anything else found in [Issues](https://github.com/rc0r/AvivoreXT/issues)
 

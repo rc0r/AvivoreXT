@@ -24,7 +24,7 @@ def is_sequence(arg):
 class AvivoreConfig:
     def __init__(self, config_type, config_filename):
         self.config_type = config_type
-        self.config_filename = str(config_filename)
+        self.config_filename = config_filename
         self.config = ConfigParser.ConfigParser()
         self.twitter_search_types = []
         self.twitter_search_terms = []
@@ -193,7 +193,7 @@ class Avivore:
     def twitter_search(self, search_string):
         try:
 #             search_results = search_for_a_tweet(self.twitter_bearer_token, search_string)
-            search_results = self.twitter_instance.search.tweets(q=str(search_string))
+            search_results = self.twitter_instance.search.tweets(q=search_string)
             output = search_results['statuses']
         except:
             output = None   # If this bombs out, we have the option of at least spitting out a result.
@@ -319,10 +319,10 @@ def twitter_query_main(avivore):
                     else:   # If something is found, then we'll process the tweet
                         stored = stored, int(z[0])
                         # result value, time, result itself, tweet ID, tweet itself, userId
-                        string = result[0], z[2], str(result[1]), z[0], z[3], z[4]
+                        string = result[0], z[2], result[1], z[0], z[3], z[4]
                         message = avivore.process_tweet(string)
                         if 0 != message:
-                            Output("[Q] " + str(message))
+                            Output("[Q] " + message)
             time.sleep(avivore.avivore_config.twitter_search_interval)
 
 
@@ -343,10 +343,10 @@ def twitter_stream_main(avivore):
             else:   # If something is found, then we'll process the tweet
                 stored = stored, int(z[0])
                 # result value, time, result itself, tweet ID, tweet itself, userId
-                string = result[0], z[2], str(result[1]), z[0], z[3], z[4]
+                string = result[0], z[2], result[1], z[0], z[3], z[4]
                 message = avivore.process_tweet(string)
                 if 0 != message:
-                    Output("[S] " + str(message))
+                    Output("[S] " + message)
 
 
 def Output(string):
