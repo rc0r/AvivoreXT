@@ -49,6 +49,9 @@ python environment:
         $ cd AvivoreXT
         $ virtualenv -p /usr/bin/python2.7 venv
 
+In case `virtualenv` is not available on your system, you'll need to install
+package `python-virtualenv` for Debian/Ubuntu based distros or Archlinux.
+
 3. Switch to virtual environment:
 
         $ source venv/bin/activate
