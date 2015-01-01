@@ -75,10 +75,12 @@ and `consumer_secret` in section `twitter_auth`. Both values can be obtained
 from https://dev.twitter.com/apps after registration of a new Twitter app.
 Comments explain all remaining options in the config file. After defining data
 sets and search terms as needed you're good to go. Both are located in sections
-`twitter_search_objects` and `twitter_search` respectively. Tracking keywords
+`twitter_search_objects` and `twitter_search` respectively. [Tracking keywords](
+https://dev.twitter.com/streaming/overview/request-parameters#track)
 that are used to monitor the Twitter Streaming API can be configured by setting
 the option `stream_tracking_keyword` which is also found in section
-`twitter_search`.
+`twitter_search`. Check out the sample config file `sample.conf` for more
+information regarding the configuration options!
 
 Running AvivoreXT is quite easy:
 

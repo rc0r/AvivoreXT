@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
+import AvivoreXT
 from setuptools import setup, find_packages
-
-version = '1.2.3.dev1'
 
 dependencies = ['twitter']
 
 scripts = ['avivore']
 
 setup(name='AvivoreXT',
-      version=version,
+      version=AvivoreXT.__version__,
       description='Twitter data mining tool',
       long_description=open("./README.md", "r").read(),
       classifiers=[

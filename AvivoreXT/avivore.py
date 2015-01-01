@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
+import AvivoreXT
 from twitter import *
 import time
 import re
@@ -73,17 +74,17 @@ class AvivoreConfig:
             qresult = dbcur.fetchone()
             if qresult is not None:  # We should only have to pull one.
                 # read search term definitions
-                twitter_search_term = qresult[5].strip(" '\"\n")
+                twitter_search_term = qresult[5].strip(" \n")
                 twitter_search_terms_raw = twitter_search_term.split(',')
                 for x in twitter_search_terms_raw:
                     self.twitter_search_terms.append(x)
 
                 # read other settings
-                self.database_path = qresult[0].strip("'\"")
-                self.twitter_consumer_key = qresult[1].strip("'\"")
-                self.twitter_consumer_secret = qresult[2].strip("'\"")
-                self.credentials_file = qresult[3].strip("'\"")
-                self.twitter_track_keywords = qresult[4].strip("'\"")
+                self.database_path = qresult[0].strip()
+                self.twitter_consumer_key = qresult[1].strip()
+                self.twitter_consumer_secret = qresult[2].strip()
+                self.credentials_file = qresult[3].strip()
+                self.twitter_track_keywords = qresult[4].strip()
                 self.twitter_search_interval = int(qresult[6])
             else:
                 failed = True
@@ -339,6 +340,7 @@ def twitter_query_main(avivore):
 
 # continuously checks twitter stream API
 def twitter_stream_main(avivore):
+    Output("Beginning stream processing [S].")
     stored = []
     twitter_stream_inst = avivore.twitter_stream_auth()
 
@@ -393,7 +395,7 @@ def SoftwareExit(status, message):
 
 
 def start():
-    SoftwareInitMsg("1.2.3.dev1")
+    SoftwareInitMsg(AvivoreXT.__version__)
     CheckUsage(sys.argv)
     try:
         main(sys.argv)
