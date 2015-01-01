@@ -224,7 +224,7 @@ class Avivore:
     def process_tweet(self, string):
         # This is just to write the tweet to the DB and then to output it in a
         # friendly manner. I guess it can be cleaned up but it works.
-        if self.__db_dup_check(string[3]) == 0:
+        if self.__db_dup_check(string[3], string[2]) == 0:
             self.__db_write_value(time.time(), string[0], string[1], string[5],
                                   string[2], string[3], string[4])
             return "Type: " + str(string[0]) + ", User: " + string[1] + " (" + \
@@ -232,17 +232,28 @@ class Avivore:
         else:
             return 0
 
-    def __db_dup_check(self, value):
-        # The nice thing about using the SQL DB is that I can just have it make a query to make a duplicate check.
-        # This can likely be done better but it's "good enough" for now.
-        string = "SELECT * FROM Data WHERE TID IS \'" + str(int(value)) + "\'"
+    def __db_dup_check(self, tid, value):
+        # The nice thing about using the SQL DB is that I can just have it make
+        # a query to make a duplicate check. This can likely be done better but
+        # it's "good enough" for now.
+        output = 0
         con = lite.connect(self.avivore_config.database_path)
         cur = con.cursor()
-        cur.execute(string)
-        if cur.fetchone() is not None:  # We should only have to pull one.
-            output = 1
-        else:
-            output = 0
+
+        if output==0:
+            # check TweetID (TID)
+            string = "SELECT * FROM Data WHERE TID IS \'" + str(int(tid)) + "\'"
+            cur.execute(string)
+            if cur.fetchone() is not None:  # We should only have to pull one.
+                output = 1
+
+        if output==0:
+            # check extracted data value
+            string = "SELECT * FROM Data WHERE Value IS \'" + value + "\'"
+            cur.execute(string)
+            if cur.fetchone() is not None:
+                output = 1
+
         return output
 
     def __db_write_value(self, stime, stype, user, userid, value, tweetid, message):
@@ -382,7 +393,7 @@ def SoftwareExit(status, message):
 
 
 def start():
-    SoftwareInitMsg("1.2.3.dev0")
+    SoftwareInitMsg("1.2.3.dev1")
     CheckUsage(sys.argv)
     try:
         main(sys.argv)
