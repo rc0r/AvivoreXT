@@ -392,11 +392,11 @@ def Output(string):
         pass
     else:
         # This is sort of lame but whatever:
-        print "[" + str(round(time.time(), 0))[:-2] + "]", string
+        print("[" + str(round(time.time(), 0))[:-2] + "]" + string)
 
 
 def SoftwareInitMsg(version):
-    print "AvivoreXT", version, "by rc0r (https://github.com/rc0r)"
+    print("AvivoreXT" + version + "by rc0r (https://github.com/rc0r)")
 
 
 def CheckUsage(argv):
@@ -408,13 +408,13 @@ def CheckUsage(argv):
             print_usage = True
 
     if print_usage:
-        print "Usage: %s -c <config-file>|-d <config-dbfile>" % argv[0]
+        print("Usage: %s -c <config-file>|-d <config-dbfile>" % argv[0])
         sys.exit(-1)
 
 
 def SoftwareExit(status, message):
-    print ""
-    print message
+    print("")
+    print(message)
     sys.exit(status)
 
 

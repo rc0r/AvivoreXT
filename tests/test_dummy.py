@@ -13,7 +13,7 @@ class DummyTestCase(unittest.TestCase):
     #     # code to execute to clean up after tests
     #     pass
     def test_feature_dummy(self):
-        self.failUnless(True)
+        self.assertTrue(True)
 
 
 def test_main():
