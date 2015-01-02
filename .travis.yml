@@ -2,5 +2,12 @@ language: python
 python:
   - "2.6"
   - "2.7"
-install: "python setup.py install"
-script: "python tests/notest.py"
+before_install:
+  - pip install pytest pytest-cov
+  - pip install coveralls
+install:
+  - python setup.py install
+script:
+  - coverage run tests/notest.py
+after_success:
+  - coveralls

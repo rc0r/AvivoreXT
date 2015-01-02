@@ -1,4 +1,4 @@
-#AvivoreXT [![Build Status](https://travis-ci.org/rc0r/AvivoreXT.svg)](https://travis-ci.org/rc0r/AvivoreXT)
+#AvivoreXT [![Build Status](https://travis-ci.org/rc0r/AvivoreXT.svg)](https://travis-ci.org/rc0r/AvivoreXT) [![Coverage Status](https://img.shields.io/coveralls/rc0r/AvivoreXT.svg)](https://coveralls.io/r/rc0r/AvivoreXT)
 
 ###The Twitter-searching Data Miner
 
