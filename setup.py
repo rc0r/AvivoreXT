@@ -29,4 +29,5 @@ setup(name='AvivoreXT',
       install_requires = dependencies,
       scripts=scripts,
       packages=find_packages(),
+      test_suite='tests',
 )
