@@ -3,6 +3,8 @@
 
 import AvivoreXT
 from twitter import *
+from twitter.stream import Timeout, HeartbeatTimeout, Hangup
+from urllib2 import URLError
 import time
 import re
 import sys
@@ -14,6 +16,7 @@ import threading
 """
 Helper functions
 """
+
 
 def is_sequence(arg):
     # check if arg is list, tuple, ...
@@ -48,7 +51,7 @@ class AvivoreConfig:
                 try:
                     self.twitter_search_types.append(self.config.get('twitter_search_objects', str(i), 0).strip("'\""))
                     i += 1
-                except:
+                except Exception:
                     exists = False
 
             # read search term definitions
@@ -109,8 +112,8 @@ class AvivoreConfig:
 
     def init_config_database(self, config_database_path):
         if not os.path.isfile(config_database_path):
-             Output("Creating a new configuration database.")
-        #     dbcon = lite.connect(config_database_path)
+            Output("Creating a new configuration database.")
+        # dbcon = lite.connect(config_database_path)
         #     dbcur = dbcon.cursor()
         #     dbcur.execute("SELECT Count(*) FROM Config")
         #     Output(str(dbcur.fetchone()[0]) + " entries in table Config so far.")
@@ -146,8 +149,8 @@ class AvivoreConfig:
             DatabaseFirstWrite = float(DBCur.fetchone()[0]) + 2
             Output("Database first written to " + str(DataBaseFirstWrite))
             '''
-        else:   # If the database doesn't exist, we'll create it.
-            if status == 1:     # If we desire to save the database, it will output this message.
+        else:  # If the database doesn't exist, we'll create it.
+            if status == 1:  # If we desire to save the database, it will output this message.
                 Output("Creating a new database to store data!")
                 # Eventually I'll set this up to just delete the DB at close should it be chosen as an option.
             dbcon = lite.connect(self.database_path)
@@ -169,11 +172,16 @@ class Avivore:
     """
 
     def twitter_auth(self):
-        self.twitter_bearer_token = oauth2_dance(self.avivore_config.twitter_consumer_key,
-                                                 self.avivore_config.twitter_consumer_secret)
-        self.twitter_instance = Twitter(auth=OAuth2(bearer_token=self.twitter_bearer_token))
-        return self.twitter_instance
+        try:
+            self.twitter_bearer_token = oauth2_dance(self.avivore_config.twitter_consumer_key,
+                                                     self.avivore_config.twitter_consumer_secret)
+            self.twitter_instance = Twitter(auth=OAuth2(bearer_token=self.twitter_bearer_token))
+        except (TwitterHTTPError, URLError):
+            SystemExit(1, "[!] Can't authenticate, check your network connection!")
+        except Exception as e:
+            SystemExit(1, "[!] Unknown error:\n"+e)
 
+        return self.twitter_instance
 
     def twitter_stream_auth(self):
         my_twitter_creds = os.path.expanduser(self.avivore_config.credentials_file)
@@ -193,12 +201,14 @@ class Avivore:
 
     def twitter_search(self, search_string):
         try:
-#             search_results = search_for_a_tweet(self.twitter_bearer_token, search_string)
             search_results = self.twitter_instance.search.tweets(q=search_string)
             output = search_results['statuses']
-        except:
-            output = None   # If this bombs out, we have the option of at least spitting out a result.
-            raise
+        except (TwitterHTTPError, URLError):
+            Output("[!] Problem connecting to twitter...")
+            output = None  # If this bombs out, we have the option of at least spitting out a result.
+        except Exception as e:
+            Output("[!] Unknown problem querying twitter:\n"+e)
+            output = None  # If this bombs out, we have the option of at least spitting out a result.
         return output
 
     def twitter_read_tweet(self, string):
@@ -241,14 +251,14 @@ class Avivore:
         con = lite.connect(self.avivore_config.database_path)
         cur = con.cursor()
 
-        if output==0:
+        if output == 0:
             # check TweetID (TID)
             string = "SELECT * FROM Data WHERE TID IS \'" + str(int(tid)) + "\'"
             cur.execute(string)
             if cur.fetchone() is not None:  # We should only have to pull one.
                 output = 1
 
-        if output==0:
+        if output == 0:
             # check extracted data value
             string = "SELECT * FROM Data WHERE Value IS \'" + value + "\'"
             cur.execute(string)
@@ -266,7 +276,7 @@ class Avivore:
             cur.execute(qstring,
                         (unicode(stime), unicode(stype), unicode(user), unicode(userid),
                          unicode(value), unicode(tweetid), unicode(message)))
-            #lid = cur.lastrowid
+            # lid = cur.lastrowid
 
 
 class QueryThread(threading.Thread):
@@ -309,6 +319,7 @@ def main(argv):
     # continue with twitter stream monitoring
     twitter_stream_main(avivore)
 
+
 # performs classic search queries with configured time interval
 def twitter_query_main(avivore):
     stored = []
@@ -316,19 +327,13 @@ def twitter_query_main(avivore):
     while 1:
         for x in avivore.avivore_config.twitter_search_terms:
             twit_data = avivore.twitter_search(x)
-            if twit_data is None:   # with defaults, it's unlikely that this
-                                    # will come up
-                message = "Nothing found for \"" + x + "\". Waiting " +\
-                          str(avivore.avivore_config.twitter_search_interval) +\
-                          " seconds..."
-                Output("[Q] "+str(message))
-            else:
+            if twit_data is not None:
                 for y in avivore.twitter_search(x):
                     z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
                     result = avivore.twitter_read_tweet(z[3])
                     if result[0] < 0:
                         pass
-                    else:   # If something is found, then we'll process the tweet
+                    else:  # If something is found, then we'll process the tweet
                         stored = stored, int(z[0])
                         # result value, time, result itself, tweet ID, tweet itself, userId
                         string = result[0], z[2], result[1], z[0], z[3], z[4]
@@ -344,22 +349,41 @@ def twitter_stream_main(avivore):
     stored = []
     twitter_stream_inst = avivore.twitter_stream_auth()
 
-    iterator = twitter_stream_inst.statuses.filter(track=avivore.avivore_config.twitter_track_keywords)
+    try:
+        iterator = twitter_stream_inst.statuses.filter(track=avivore.avivore_config.twitter_track_keywords)
 
-    for y in iterator:
-        if 'id' in y and 'created_at' in y and 'user' in y and 'text' in y:
-            # print y
-            z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
-            result = avivore.twitter_read_tweet(z[3])
-            if result[0] < 0:
+        for y in iterator:
+            # tweet may be a delete or data msg
+            if y is None:
                 pass
-            else:   # If something is found, then we'll process the tweet
-                stored = stored, int(z[0])
-                # result value, time, result itself, tweet ID, tweet itself, userId
-                string = result[0], z[2], result[1], z[0], z[3], z[4]
-                message = avivore.process_tweet(string)
-                if 0 != message:
-                    Output("[S] " + message)
+            # tweet may indicate a timeout
+            elif y is Timeout:
+                Output("[S] Stream timeout...")
+            elif y is HeartbeatTimeout:
+                Output("[S] Heartbeat timeout...")
+            # tweet may indicate a hung up stream conn.
+            elif y is Hangup:
+                Output("[S] Stream hangup detected!")
+            # ok, tweet seems to contain text, process it
+            elif 'id' in y and 'created_at' in y and 'user' in y and 'text' in y:
+                # print y
+                z = y['id'], y['created_at'], y['user']['screen_name'], y['text'], y['user']['id_str']
+                result = avivore.twitter_read_tweet(z[3])
+                if result[0] < 0:
+                    pass
+                else:  # If something is found, then we'll process the tweet
+                    stored = stored, int(z[0])
+                    # result value, time, result itself, tweet ID, tweet itself, userId
+                    string = result[0], z[2], result[1], z[0], z[3], z[4]
+                    message = avivore.process_tweet(string)
+                    if 0 != message:
+                        Output("[S] " + message)
+    except (TwitterHTTPError, URLError):
+        Output("[!] Can't connect to twitter stream! Check your network connection!")
+    except Exception as e:
+        Output("[!] Unknown stream processing error:\n"+e)
+    finally:
+        Output("[S] Stream processing stopped.")
 
 
 def Output(string):
@@ -404,6 +428,7 @@ def start():
     except:
         main(sys.argv)
         raise
+
 
 if __name__ == "__main__":
     start()

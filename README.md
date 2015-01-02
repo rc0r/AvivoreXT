@@ -138,6 +138,7 @@ that would be nice to have:
 * notification support (see [#8](https://github.com/rc0r/AvivoreXT/issues/8))
 * add more data sources (just to name a few: pastebin, google, facebook, reddit)
 * tests! (perspective: some integrated build, test, deployment work flow)
+* some neat UI for configuration and result display (preferentially web based)
 * anything else found in [Issues](https://github.com/rc0r/AvivoreXT/issues)
 
 Feel free to get in touch outside of Github. My  Twitter handle is [@_rc0r](https://twitter.com/_rc0r).
