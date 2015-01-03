@@ -1,4 +1,4 @@
-#AvivoreXT [![Build Status](https://travis-ci.org/rc0r/AvivoreXT.svg)](https://travis-ci.org/rc0r/AvivoreXT) [![Coverage Status](https://img.shields.io/coveralls/rc0r/AvivoreXT.svg)](https://coveralls.io/r/rc0r/AvivoreXT)
+#AvivoreXT [![Build Status](https://travis-ci.org/rc0r/AvivoreXT.svg)](https://travis-ci.org/rc0r/AvivoreXT)[![Coverage Status](https://img.shields.io/coveralls/rc0r/AvivoreXT.svg)](https://coveralls.io/r/rc0r/AvivoreXT)
 
 ###The Twitter-searching Data Miner
 
@@ -20,7 +20,18 @@ data:
 
 **Of course, more data sets can be defined in the configuration file.**
 
-AvivoreXT is based on Avivore originally developed by [Colin Keigher](https://github.com/ColinKeigher/Avivore).
+AvivoreXT is based on Avivore originally developed by
+[Colin Keigher](https://github.com/ColinKeigher/Avivore).
+
+
+###Branches
+
+The [master](https://github.com/rc0r/AvivoreXT/tree/master) branch of this
+repository is the main development branch. It likely will contain unstable
+versions of the AvivoreXT code from time to time. If you're looking for stable
+code versions use either the provided
+[releases](https://github.com/rc0r/AvivoreXT/releases) or clone from the
+[stable](https://github.com/rc0r/AvivoreXT/tree/stable) branch.
 
 
 ###Requirements
@@ -137,8 +148,9 @@ that would be nice to have:
 * python3 support
 * notification support (see [#8](https://github.com/rc0r/AvivoreXT/issues/8))
 * add more data sources (just to name a few: pastebin, google, facebook, reddit)
-* tests! (perspective: some integrated build, test, deployment work flow)
+* more tests! (perspective: some integrated build, test, deployment work flow)
 * some neat UI for configuration and result display (preferentially web based)
+* documentation! (both code and user docs)
 * anything else found in [Issues](https://github.com/rc0r/AvivoreXT/issues)
 
 Feel free to get in touch outside of Github. My  Twitter handle is [@_rc0r](https://twitter.com/_rc0r).

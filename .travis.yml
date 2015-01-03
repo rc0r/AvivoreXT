@@ -11,6 +11,6 @@ before_install:
 install:
   - python setup.py install
 script:
-  - coverage run --source=AvivoreXT,dummy setup.py test
+  - coverage run --source=AvivoreXT setup.py test
 after_success:
   - coveralls
