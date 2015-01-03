@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from AvivoreXT import Helper
-import unittest, sys
+import unittest
 from test import test_support
 from array import array
+from AvivoreXT import Helper
 
 
 class HelperTestCase(unittest.TestCase):
@@ -70,7 +70,8 @@ class HelperTestCase(unittest.TestCase):
 
 
 def test_main():
-    test_support.run_unittest(HelperTestCase)
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(HelperTestCase)
+    unittest.TextTestRunner().run(suite)
 
 if __name__ == '__main__':
     test_main()
