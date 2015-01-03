@@ -27,5 +27,3 @@ def output(string):
     if isinstance(string, str):
         # This is sort of lame but whatever:
         print("[" + str(round(time.time(), 0))[:-2] + "] " + string)
-
-

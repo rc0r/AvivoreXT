@@ -30,4 +30,4 @@ setup(name='AvivoreXT',
       scripts=scripts,
       packages=find_packages(),
       test_suite='tests',
-)
+      )
