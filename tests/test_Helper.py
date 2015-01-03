@@ -31,7 +31,7 @@ class HelperTestCase(unittest.TestCase):
 
         # testing string types
         self.assertTrue(Helper.is_string("Hello World"))
-        self.assertTrue(Helper.is_string(u"Hello World\u203c"))
+        self.assertTrue(Helper.is_string("Hello World\u203c"))
 
     def test_is_sequence(self):
         # testing sequential types
@@ -44,7 +44,7 @@ class HelperTestCase(unittest.TestCase):
 
         # testing non-sequential types
         self.assertFalse(Helper.is_sequence("Hello World"))
-        self.assertFalse(Helper.is_sequence(u"Hello World\u203c"))
+        self.assertFalse(Helper.is_sequence("Hello World\u203c"))
         self.assertFalse(Helper.is_sequence(3))
         self.assertFalse(Helper.is_sequence(3.14))
         self.assertFalse(Helper.is_sequence(self))
