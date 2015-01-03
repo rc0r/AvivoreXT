@@ -54,7 +54,7 @@ class HelperTestCase(unittest.TestCase):
 
     def test_output(self):
         self.assertTrue(None == Helper.output("Test"))
-        self.assertTrue(None == Helper.output(u"\u2031\u203c\u2049"))
+        self.assertTrue(None == Helper.output("\u2031\u203c\u2049"))
         self.assertTrue(None == Helper.output(self))
         self.assertTrue(None == Helper.output(None))
         self.assertTrue(None == Helper.output(True))
