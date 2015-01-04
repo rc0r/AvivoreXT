@@ -1,15 +1,18 @@
 # -*- coding: utf8 -*-
-from AvivoreXT import Helper
-import ConfigParser
+from AvivoreXT import Compat, Helper
 import os
 import sqlite3 as lite
 
+if Compat.is_python3():
+    from configparser import ConfigParser
+else:
+    from ConfigParser import ConfigParser
 
 class AvivoreConfig:
     def __init__(self, config_type, config_filename):
         self.config_type = config_type
         self.config_filename = config_filename
-        self.config = ConfigParser.ConfigParser()
+        self.config = ConfigParser()
         self.twitter_search_types = []
         self.twitter_search_terms = []
         self.twitter_track_keywords = None
