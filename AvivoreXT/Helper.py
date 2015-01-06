@@ -23,7 +23,12 @@ def is_string(arg):
 
 
 def is_sequence(arg):
-    # check if arg is list, tuple, ...
+    """
+    Checks if an object is sequential type (like list, tuple, ...), but not a string.
+
+    :param arg: Object under test.
+    :return:    True if object is sequential type (and not string), False otherwise.
+    """
     return (not is_string(arg) and
             (hasattr(arg, "__getitem__") or
             hasattr(arg, "__iter__")))
@@ -61,7 +66,13 @@ def filepath_exists(filename):
 
 
 def output(string):
+    """
+    Prints a unix timestamp followed by a provided message.
+
+    :param string:  The message to print
+    :return:        None
+    """
     # Default text output for the console.
-    if isinstance(string, str):
+    if is_string(string):
         # This is sort of lame but whatever:
         print("[" + str(round(time.time(), 0))[:-2] + "] " + string)
