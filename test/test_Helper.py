@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-#from test import test_support
 from array import array
 from AvivoreXT import Helper
 
@@ -52,6 +51,17 @@ class HelperTestCase(unittest.TestCase):
         self.assertFalse(Helper.is_sequence(True))
         self.assertFalse(Helper.is_sequence(Helper.is_sequence))
 
+    def test_filepath_exists(self):
+        self.assertTrue(Helper.filepath_exists('/etc/passwd'))
+        self.assertTrue(Helper.filepath_exists('/etc/bullshit'))
+        self.assertFalse(Helper.filepath_exists('/complete_bullshit/bs'))
+        self.assertTrue(Helper.filepath_exists('/blubb'))
+        self.assertTrue(Helper.filepath_exists('test/__init__.py'))
+        self.assertTrue(Helper.filepath_exists('test/invalid_file'))
+        self.assertTrue(Helper.filepath_exists('test'))
+        self.assertTrue(Helper.filepath_exists('./test'))
+        self.assertTrue(Helper.filepath_exists('./test/'))
+
     def test_output(self):
         self.assertTrue(None == Helper.output("Test"))
         self.assertTrue(None == Helper.output("\u2031\u203c\u2049"))
@@ -70,24 +80,7 @@ class HelperTestCase(unittest.TestCase):
 
 
 def test_main():
-    #test_support.run_unittest(HelperTestCase)
-    #unittest.main()
-
-    #suite = unittest.defaultTestLoader.loadTestsFromTestCase(HelperTestCase)
-    #unittest.TextTestRunner().run(suite)
-
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-    tcl = loader.loadTestsFromTestCase
-
-    testClasses = [
-        'HelperTestCase'
-    ]
-
-    for c in testClasses:
-        suite.addTest(tcl(c))
-
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.main()
 
 
 if __name__ == '__main__':

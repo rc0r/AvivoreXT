@@ -1,9 +1,12 @@
 # -*- coding: utf8 -*-
 
-from AvivoreXT import Helper, AvivoreConfig
+from AvivoreXT import AvivoreConfig, Compat, Helper
 from twitter import *
 from twitter.stream import Timeout, HeartbeatTimeout, Hangup
-from urllib2 import URLError
+if Compat.is_python3():
+    from urllib.error import URLError
+else:
+    from urllib2 import URLError
 import time
 import re
 import os

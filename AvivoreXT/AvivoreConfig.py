@@ -4,12 +4,27 @@ import os
 import sqlite3 as lite
 
 if Compat.is_python3():
-    from configparser import ConfigParser
+    from configparser import ConfigParser, NoOptionError, MissingSectionHeaderError
 else:
-    from ConfigParser import ConfigParser
+    from ConfigParser import ConfigParser, NoOptionError, MissingSectionHeaderError
+
+
+class AvivoreConfigException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+        Exception.__init__(self, '%s' % msg)
+
+
+class MissingConfigItemException(AvivoreConfigException):
+    def __init__(self, section, option):
+        self.msg = 'Mandatory config item \'%s\' missing in section \'%s\'!' % (option, section)
+        AvivoreConfigException.__init__(self, self.msg)
+
 
 class AvivoreConfig:
     def __init__(self, config_type, config_filename):
+        if not Helper.is_string(config_filename):
+            raise AvivoreConfigException('Invalid config file specified!')
         self.config_type = config_type
         self.config_filename = config_filename
         self.config = ConfigParser()
@@ -21,46 +36,87 @@ class AvivoreConfig:
         self.twitter_search_interval = 30
         self.credentials_file = None
         self.database_path = None
+        self.mandatory_options = [
+            # Be sure to keep order of database table layout for options from 'config' database
+            # append type definitions for twitter_search_objects!
+            ('database', 'dbpath'),
+            ('twitter_auth', 'consumer_key'),
+            ('twitter_auth', 'consumer_secret'),
+            ('twitter_auth', 'credentials_file'),
+            ('twitter_search', 'stream_tracking_keyword'),
+            ('twitter_search', 'csv_search_term'),
+            ('twitter_search_objects', '0'),
+        ]
+
+    def has_mandatory_items(self):
+        """
+        DOC!
+        """
+        ret = True
+        s = None
+        for s in self.mandatory_options:
+            if not self.config.has_option(s[0], s[1]):
+                ret = False
+                break
+        return ret, s
 
     def read_config(self):
+        """
+        DOC!
+        """
         if 0 == self.config_type:
-            # open config file
-            self.config.read(self.config_filename)
+            try:
+                # open config file
+                if not os.path.isfile(self.config_filename):
+                    raise AvivoreConfigException('Config file not found!')
+                self.config.read(self.config_filename)
+            except (MissingSectionHeaderError, UnicodeDecodeError):
+                raise AvivoreConfigException('No valid config file specified!')
+
+            # check config file for presence of mandatory items
+            (has_all, config_item) = self.has_mandatory_items()
+            if not has_all:
+                raise MissingConfigItemException(config_item[0], config_item[1])
 
             # read data set definitions
             exists = True
             i = 0
             while exists:
                 try:
-                    self.twitter_search_types.append(self.config.get('twitter_search_objects', str(i), 0).strip("'\""))
+                    self.twitter_search_types.append(self.config.get('twitter_search_objects', str(i), raw=True).strip('\'\"'))
                     i += 1
-                except Exception:
+                except NoOptionError:
                     exists = False
 
             # read search term definitions
-            twitter_search_term = self.config.get('twitter_search', 'csv_search_term', 0).strip(" '\"\n")
+            twitter_search_term = self.config.get('twitter_search', 'csv_search_term', raw=True).strip(' \'\"\n')
             twitter_search_terms_raw = twitter_search_term.split(',')
             for x in twitter_search_terms_raw:
                 self.twitter_search_terms.append(x)
 
             # read other settings
-            self.twitter_consumer_key = self.config.get('twitter_auth', 'consumer_key', 0).strip("'\"")
-            self.twitter_consumer_secret = self.config.get('twitter_auth', 'consumer_secret', 0).strip("'\"")
-            self.database_path = self.config.get('database', 'dbpath', 0).strip("'\"")
-            self.credentials_file = self.config.get('twitter_auth', 'credentials_file', 0).strip("'\"")
-            self.twitter_search_interval = int(self.config.get('twitter_search', 'interval', 0).strip("'\""))
-            self.twitter_track_keywords = self.config.get('twitter_search', 'stream_tracking_keyword', 0).strip(" '\"")
+            self.twitter_consumer_key = self.config.get('twitter_auth', 'consumer_key', raw=True).strip('\'\"')
+            self.twitter_consumer_secret = self.config.get('twitter_auth', 'consumer_secret', raw=True).strip('\'\"')
+            self.database_path = self.config.get('database', 'dbpath', raw=True).strip('\'\"')
+            self.credentials_file = self.config.get('twitter_auth', 'credentials_file', raw=True).strip('\'\"')
+            self.twitter_search_interval = int(self.config.get('twitter_search', 'interval', raw=True).strip('\'\"'))
+            self.twitter_track_keywords = self.config.get('twitter_search', 'stream_tracking_keyword', raw=True).strip(
+                ' \'\"')
         elif 1 == self.config_type:
-            failed = False
             # prepare config database if it does not exist
             dbcur = self.init_config_database(self.config_filename)
             # read config from database
-            string = "SELECT * FROM config"
+            string = 'SELECT * FROM config'
             dbcur.execute(string)
             qresult = dbcur.fetchone()
             if qresult is not None:  # We should only have to pull one.
+                # check if mandatory options are in 'config' database
+                for q in range(0, 5, 1):
+                    if qresult[q] is None or 0 == len(qresult[q]):
+                        raise MissingConfigItemException('Database.config', self.mandatory_options[q][1])
+
                 # read search term definitions
-                twitter_search_term = qresult[5].strip(" \n")
+                twitter_search_term = qresult[5].strip(' \n')
                 twitter_search_terms_raw = twitter_search_term.split(',')
                 for x in twitter_search_terms_raw:
                     self.twitter_search_terms.append(x)
@@ -71,72 +127,61 @@ class AvivoreConfig:
                 self.twitter_consumer_secret = qresult[2].strip()
                 self.credentials_file = qresult[3].strip()
                 self.twitter_track_keywords = qresult[4].strip()
-                self.twitter_search_interval = int(qresult[6])
+
+                if qresult[6] is not None:
+                    self.twitter_search_interval = int(qresult[6])
             else:
-                failed = True
+                raise AvivoreConfigException('No valid (empty) configuration found in database!')
 
-            if not failed:
-                # read data set definitions
-                string = "SELECT * FROM typedefs"
-                dbcur.execute(string)
-                qresults = dbcur.fetchall()
-                if qresults is None:
-                    failed = True
-                else:
-                    for qresult in qresults:
-                        self.twitter_search_types.append(str(qresult[1]).strip("'\""))
-
-            if failed:
-                Helper.output("Sorry, no valid configuration found in database!")
-                Helper.output("Please update missing configuration settings in your database and try again!")
-                Helper.output("Exitting.")
-                return -1
-        return 0
+            # read data set definitions
+            string = 'SELECT * FROM typedefs'
+            dbcur.execute(string)
+            qresults = dbcur.fetchall()
+            if qresults is None or 0 == len(qresults):
+                raise AvivoreConfigException('No data set type definitions found in database!')
+            else:
+                for qresult in qresults:
+                    #print(qresult)
+                    self.twitter_search_types.append(str(qresult[1]).strip('\'\"'))
+        else:
+            raise AvivoreConfigException('Invalid config type specified!')
 
     def init_config_database(self, config_database_path):
         if not os.path.isfile(config_database_path):
-            Helper.output("Creating a new configuration database.")
-        # dbcon = lite.connect(config_database_path)
-        #     dbcur = dbcon.cursor()
-        #     dbcur.execute("SELECT Count(*) FROM Config")
-        #     Output(str(dbcur.fetchone()[0]) + " entries in table Config so far.")
-        #     dbcur.execute("SELECT Count(*) FROM TypeDefs")
-        #     Output(str(dbcur.fetchone()[0]) + " entries in table TypeDefs so far.")
-        #     '''
-        #     # Removed the items below due to a bug. It's not needed really.
-        #     DBCur.execute("SELECT * FROM Data ORDER BY TimeRecv ASC LIMIT 1")
-        #     print DBCur.fetchone()[0]
-        #     DatabaseFirstWrite = float(DBCur.fetchone()[0]) + 2
-        #     Output("Database first written to " + str(DataBaseFirstWrite))
-        #     '''
-        #else:   # If the database doesn't exist, we'll create it.
+            if not Helper.filepath_exists(config_database_path):
+                raise AvivoreConfigException('Invalid path to configuration database file specified!')
+            Helper.output('[W] Configuration database file not found!')
+            Helper.output('[W] Creating a new configuration database.')
+            Helper.output('[W] Now please store your configuration in database file \'%s\', then try again!'
+                          % config_database_path)
         dbcon = lite.connect(config_database_path)
         dbcur = dbcon.cursor()
         dbcur.execute(
-            "CREATE TABLE IF NOT EXISTS Config (dbpath text, consumer_key text, consumer_secret text, \
-            credentials_file text, stream_tracking_keyword text, csv_search_term, interval int)")
-        dbcur.execute("CREATE TABLE IF NOT EXISTS TypeDefs (Id int, Regex text, Comment text)")
+            'CREATE TABLE IF NOT EXISTS Config (dbpath text, consumer_key text, consumer_secret text, \
+            credentials_file text, stream_tracking_keyword text, csv_search_term, interval int)')
+        dbcur.execute('CREATE TABLE IF NOT EXISTS TypeDefs (Id int, Regex text, Comment text)')
         return dbcur
 
-    def init_database(self, status):
+    def init_database(self):
+        if not Helper.is_string(self.database_path):
+            raise AvivoreConfigException('Invalid database path specified!')
+
+        table_data_exists = False
+
         if os.path.isfile(self.database_path):
-            Helper.output("Using existing database to store results.")
-            dbcon = lite.connect(self.database_path)
-            dbcur = dbcon.cursor()
-            dbcur.execute("SELECT Count(*) FROM Data")
-            Helper.output(str(dbcur.fetchone()[0]) + " entries in this database so far.")
-            '''
-            # Removed the items below due to a bug. It's not needed really.
-            DBCur.execute("SELECT * FROM Data ORDER BY TimeRecv ASC LIMIT 1")
-            print DBCur.fetchone()[0]
-            DatabaseFirstWrite = float(DBCur.fetchone()[0]) + 2
-            Output("Database first written to " + str(DataBaseFirstWrite))
-            '''
-        else:  # If the database doesn't exist, we'll create it.
-            if status == 1:  # If we desire to save the database, it will output this message.
-                Helper.output("Creating a new database to store data!")
-                # Eventually I'll set this up to just delete the DB at close should it be chosen as an option.
+            Helper.output('Using existing database to store results.')
+            try:
+                dbcon = lite.connect(self.database_path)
+                dbcur = dbcon.cursor()
+                dbcur.execute('SELECT Count(*) FROM Data')
+                Helper.output(str(dbcur.fetchone()[0]) + ' entries in this database so far.')
+                table_data_exists = True
+            except lite.OperationalError:
+                Helper.output('[W] Table \'Data\' not found in database!')
+
+        if not table_data_exists:  # If the database doesn't exist, we'll create it.
+            Helper.output('Creating new table \'Data\' in database \'%s\' to store data!' % self.database_path)
             dbcon = lite.connect(self.database_path)
             dbcur = dbcon.cursor()
             dbcur.execute(
-                "CREATE TABLE Data (TimeRecv int, Type int, User text, UserId text, Value text, TID int, Message text)")
+                'CREATE TABLE Data (TimeRecv int, Type int, User text, UserId text, Value text, TID int, Message text)')

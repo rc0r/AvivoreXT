@@ -1,1 +1,1 @@
-include avivore README.md sample.conf sample_conf.db LICENSE
+include avivore README.md sample.conf sample_conf.db LICENSE testdata

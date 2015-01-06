@@ -4,6 +4,7 @@
 import AvivoreXT
 from AvivoreXT import Avivore, AvivoreConfig, QueryThread
 import sys
+import time
 
 
 query_thread = None
@@ -19,10 +20,10 @@ def main(argv):
         return -1
 
     # read & parse config file
-    if 0 > config.read_config():
-        return -1
+    config.read_config()
+
     # prepare database
-    config.init_database(0)
+    config.init_database()
 
     # create Avivore instance
     avivore = Avivore.Avivore(config)
@@ -33,12 +34,14 @@ def main(argv):
     query_thread.setDaemon(True)
     query_thread.start()
 
+    time.sleep(1)
+
     # continue with twitter stream monitoring
     avivore.twitter_stream_main()
 
 
 def software_init_msg(version):
-    print("AvivoreXT" + version + "by rc0r (https://github.com/rc0r)")
+    print("AvivoreXT " + version + " by rc0r (https://github.com/rc0r)")
 
 
 def software_exit(status, message):
