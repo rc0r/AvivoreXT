@@ -10,18 +10,27 @@ else:
 
 
 class AvivoreConfigException(Exception):
+    """
+    Generic AvivoreConfig exception class
+    """
     def __init__(self, msg):
         self.msg = msg
         Exception.__init__(self, '%s' % msg)
 
 
 class MissingConfigItemException(AvivoreConfigException):
+    """
+    AvivoreConfig exception class for missing configuration items in an AvivoreXT configuration.
+    """
     def __init__(self, section, option):
         self.msg = 'Mandatory config item \'%s\' missing in section \'%s\'!' % (option, section)
         AvivoreConfigException.__init__(self, self.msg)
 
 
 class AvivoreConfig:
+    """
+    Class for storing and managing AvivoreXT configuration options.
+    """
     def __init__(self, config_type, config_filename):
         if not Helper.is_string(config_filename):
             raise AvivoreConfigException('Invalid config file specified!')
@@ -50,7 +59,9 @@ class AvivoreConfig:
 
     def has_mandatory_items(self):
         """
-        DOC!
+        Checks if mandatory config items (AvivoreConfig.mandatory_options) were read from a config file.
+
+        :return:    Returns True, if all mandatory items were read from config file, False otherwise.
         """
         ret = True
         s = None
@@ -62,7 +73,10 @@ class AvivoreConfig:
 
     def read_config(self):
         """
-        DOC!
+        Reads configuration settings from a configuration file and stores configuration values in corresponding
+        class member variables.
+
+        :return:    None.
         """
         if 0 == self.config_type:
             try:
@@ -147,6 +161,15 @@ class AvivoreConfig:
             raise AvivoreConfigException('Invalid config type specified!')
 
     def init_config_database(self, config_database_path):
+        """
+        Prepares a sqlite3 database for use as a configuration database. Creates a database with the specified
+        filename and creates empty 'Config' and 'TypeDefs' database tables that are going to hold all configuration
+        settings.
+
+        :param config_database_path: Path to database file.
+        :return:    Returns a cursor to the sqlite3 database connection that can be used for further database
+                    operations.
+        """
         if not os.path.isfile(config_database_path):
             if not Helper.filepath_exists(config_database_path):
                 raise AvivoreConfigException('Invalid path to configuration database file specified!')
@@ -163,6 +186,13 @@ class AvivoreConfig:
         return dbcur
 
     def init_database(self):
+        """
+        Prepares a sqlite3 database for data set storage. If the file specified in AvivoreConfig.database_path
+        doesn't exist a new sqlite3 database with table 'Data' is created. Otherwise the existing database is used to
+        store additional data sets.
+
+        :return:    None
+        """
         if not Helper.is_string(self.database_path):
             raise AvivoreConfigException('Invalid database path specified!')
 

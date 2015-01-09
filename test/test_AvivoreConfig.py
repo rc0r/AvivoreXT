@@ -116,6 +116,14 @@ class AvivoreConfigTestCase(unittest.TestCase):
                     with self.assertRaises(AvivoreConfig.AvivoreConfigException):
                         self.assertIsNone(avivore_conf_inst.read_config())
 
+    def test_init_config_database(self):
+        avivore_conf_inst = AvivoreConfig.AvivoreConfig(1, './testdata/test.db')
+
+        with self.assertRaises(AvivoreConfig.AvivoreConfigException):
+            self.assertIsNone(avivore_conf_inst.init_config_database('./testdata/invalidpath/invalid.db'))
+
+        self.assertIsInstance(avivore_conf_inst.init_config_database('./testdata/test.db'), lite.Cursor)
+
     def test_init_database(self):
         avivore_conf_inst = AvivoreConfig.AvivoreConfig(0, './testdata/test.conf')
 
