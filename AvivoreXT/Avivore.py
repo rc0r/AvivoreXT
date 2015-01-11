@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from AvivoreXT import AvivoreConfig, Compat, Helper
+from AvivoreXT import AvivoreConfig, Compat, Helper, AvivoreTwitterError
 from twitter import *
 from twitter.stream import Timeout, HeartbeatTimeout, Hangup
 if Compat.is_python3():
@@ -31,9 +31,9 @@ class Avivore:
                                                      self.avivore_config.twitter_consumer_secret)
             self.twitter_instance = Twitter(auth=OAuth2(bearer_token=self.twitter_bearer_token))
         except (TwitterHTTPError, URLError):
-            SystemExit(1, "[!] Can't authenticate, check your network connection!")
+            raise AvivoreTwitterError.TwitterAuthenticationException('Network error, check your connection!')
         except Exception as e:
-            SystemExit(1, "[!] Unknown error:\n"+e)
+            raise AvivoreTwitterError.TwitterAuthenticationException(e)
 
         return self.twitter_instance
 
@@ -103,7 +103,7 @@ class Avivore:
             Helper.output("[!] Problem connecting to twitter...")
             output = None  # If this bombs out, we have the option of at least spitting out a result.
         except Exception as e:
-            Helper.output("[!] Unknown problem querying twitter:\n"+e)
+            Helper.output("[!] Unknown problem querying twitter:\n%s" % e)
             output = None  # If this bombs out, we have the option of at least spitting out a result.
         return output
 
@@ -168,12 +168,24 @@ class Avivore:
         return output
 
     def __db_write_value(self, stime, stype, user, userid, value, tweetid, message):
+        """
+        Writes a data set found in a tweet to the 'Data' table in the result database.
+
+        :param stime:   Unix timestamp of the time the tweet was found
+        :param stype:   Type identifier mapping the tweet to the type definitions in the configuration
+        :param user:    User name of the creator of the tweet
+        :param userid:  User id of the creator of the tweet
+        :param value:   Extracted information (according to type definition)
+        :param tweetid: Tweet id
+        :param message: The tweets message itself
+        :return:        None
+        """
         # Just a simple function to write the results to the database.
         con = lite.connect(self.avivore_config.database_path)
         qstring = "INSERT INTO Data VALUES(?, ?, ?, ?, ?, ?, ?)"
         with con:
             cur = con.cursor()
-            cur.execute(qstring,
-                        (unicode(stime), unicode(stype), unicode(user), unicode(userid),
-                         unicode(value), unicode(tweetid), unicode(message)))
+            cur.execute(qstring, (stime, stype, user, userid, value, tweetid, message))
+                        #(unicode(stime), unicode(stype), unicode(user), unicode(userid),
+                         #unicode(value), unicode(tweetid), unicode(message)))
             # lid = cur.lastrowid

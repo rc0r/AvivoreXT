@@ -11,6 +11,12 @@ query_thread = None
 
 
 def main(argv):
+    """
+    Avivore main() function.
+
+    :param argv:    Array containing command line arguments.
+    :return:        None
+    """
     # create AvivoreConfig instance
     if "-c" == argv[1]:
         config = AvivoreConfig.AvivoreConfig(0, argv[2])
@@ -41,16 +47,35 @@ def main(argv):
 
 
 def software_init_msg(version):
+    """
+    Prints AvivoreXT welcome message.
+
+    :param version: Version number of AvivoreXT release.
+    :return:        None
+    """
     print("AvivoreXT " + version + " by rc0r (https://github.com/rc0r)")
 
 
 def software_exit(status, message):
+    """
+    Exit function, prints exit message and quits AvivoreXT with a user provided status code.
+
+    :param status:  Exit status code.
+    :param message: Message to display.
+    :return:        None
+    """
     print("")
     print(message)
     sys.exit(status)
 
 
 def check_usage(argv):
+    """
+    Checks for correct program invocation from the command line and prints usage information if necessary.
+
+    :param argv:    Array containing all command line arguments passed to AvivoreXT
+    :return:        None
+    """
     print_usage = False
     if 3 != len(argv):
         print_usage = True
@@ -64,6 +89,11 @@ def check_usage(argv):
 
 
 def start():
+    """
+    AvivoreXT start procedure.
+
+    :return:    None
+    """
     software_init_msg(AvivoreXT.__version__)
     check_usage(sys.argv)
     try:
