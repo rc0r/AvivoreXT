@@ -3,12 +3,13 @@
 import unittest
 from AvivoreXT import Avivore, QueryThread, AvivoreTwitterError
 import os
+import shutil
 
 
 class QueryThreadTestCase(unittest.TestCase):
     def setUp(self):
         # code to execute in preparation for tests
-        os.symlink('../sample_conf.db', './testdata/test.db')
+        shutil.copyfile('./sample_conf.db', './testdata/test.db')
 
         self.avivore_conf = Avivore.AvivoreConfig.AvivoreConfig(1, './testdata/test.db')
         self.avivore_conf.read_config()

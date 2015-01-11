@@ -134,10 +134,8 @@ class Avivore:
         if self.__db_dup_check(string[3], string[2]) == 0:
             self.__db_write_value(time.time(), string[0], string[1], string[5],
                                   string[2], string[3], string[4])
-            return "Type: " + str(string[0]) + ", User: " + string[1] + " (" + \
-                   string[5] + "), Content: " + string[2] + ", TID: " + str(string[3])
-        else:
-            return 0
+            return 'Type: %s, User: %s (%s), Content: %s, TID: %s' % (str(string[0]), string[1], string[5], string[2],
+                                                                      str(string[3]))
 
     """
     Database related functions

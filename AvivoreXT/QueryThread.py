@@ -48,7 +48,7 @@ class QueryThread(threading.Thread):
             # result value, time, result itself, tweet ID, tweet itself, userId
             string = result[0], z[2], result[1], z[0], z[3], z[4]
             message = avivore.process_tweet(string)
-            if 0 != message:
+            if message is not None:
                 Helper.output("[Q] " + message)
 
     def twitter_search(self, avivore):
