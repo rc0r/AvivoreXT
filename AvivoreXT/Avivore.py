@@ -87,7 +87,7 @@ class Avivore:
         except (TwitterHTTPError, URLError):
             Helper.output("[!] Can't connect to twitter stream! Check your network connection!")
         except Exception as e:
-            Helper.output("[!] Unknown stream processing error:\n"+e)
+            Helper.output("[!] Unknown stream processing error: %s\n" % (str(e)))
         finally:
             Helper.output("[S] Stream processing stopped.")
 
