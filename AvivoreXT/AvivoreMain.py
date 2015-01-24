@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 
 import AvivoreXT
-from AvivoreXT import Avivore, AvivoreConfig, QueryThread
+from AvivoreXT import Avivore, AvivoreError, AvivoreConfig, QueryThread
 import sys
 import time
 
@@ -10,7 +10,7 @@ import time
 query_thread = None
 
 
-def main(argv):
+def main(argv, test_running=False):
     """
     Avivore main() function.
 
@@ -18,9 +18,9 @@ def main(argv):
     :return:        None
     """
     # create AvivoreConfig instance
-    if "-c" == argv[1]:
+    if '-c' == argv[1]:
         config = AvivoreConfig.AvivoreConfig(0, argv[2])
-    elif "-d" == argv[1]:
+    elif '-d' == argv[1]:
         config = AvivoreConfig.AvivoreConfig(1, argv[2])
     else:
         return -1
@@ -38,12 +38,19 @@ def main(argv):
     global query_thread
     query_thread = QueryThread.QueryThread(avivore)
     query_thread.setDaemon(True)
-    query_thread.start()
+
+    # enter main processing loops if not in testing mode
+    if not test_running:
+        main_loop(query_thread, avivore)
+
+
+def main_loop(query_thread_inst, avivore_inst):
+    query_thread_inst.start()
 
     time.sleep(1)
 
     # continue with twitter stream monitoring
-    avivore.twitter_stream_main()
+    avivore_inst.twitter_stream_main()
 
 
 def software_init_msg(version):
@@ -53,7 +60,7 @@ def software_init_msg(version):
     :param version: Version number of AvivoreXT release.
     :return:        None
     """
-    print("AvivoreXT " + version + " by rc0r (https://github.com/rc0r)")
+    print('AvivoreXT ' + version + ' by rc0r (https://github.com/rc0r)')
 
 
 def software_exit(status, message):
@@ -64,8 +71,8 @@ def software_exit(status, message):
     :param message: Message to display.
     :return:        None
     """
-    print("")
-    print(message)
+    print('')
+    print('%s' % message)
     sys.exit(status)
 
 
@@ -80,30 +87,32 @@ def check_usage(argv):
     if 3 != len(argv):
         print_usage = True
     else:
-        if argv[1] != "-c" and argv[1] != "-d":
+        if argv[1] != '-c' and argv[1] != '-d':
             print_usage = True
 
     if print_usage:
-        print("Usage: %s -c <config-file>|-d <config-dbfile>" % argv[0])
-        sys.exit(-1)
+        print('Usage: %s -c <config-file>|-d <config-dbfile>' % argv[0])
+        raise AvivoreError.AvivoreError('Check usage!')
 
 
-def start():
+def start(test_running=False):
     """
     AvivoreXT start procedure.
 
     :return:    None
     """
     software_init_msg(AvivoreXT.__version__)
-    check_usage(sys.argv)
     try:
-        main(sys.argv)
+        check_usage(sys.argv)
+        main(sys.argv, test_running)
     except KeyboardInterrupt:
-        software_exit(0, "Exiting the application.")
+        software_exit(0, 'Exiting the application.')
+    except AvivoreError.AvivoreError:
+        software_exit(0, 'Try again!')
     except:
-        main(sys.argv)
+        main(sys.argv, test_running)
         raise
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     start()

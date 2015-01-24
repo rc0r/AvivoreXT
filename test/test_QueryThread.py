@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from AvivoreXT import Avivore, QueryThread, AvivoreTwitterError
+from AvivoreXT import Avivore, QueryThread, AvivoreError
 import os
 import shutil
 
@@ -24,7 +24,7 @@ class QueryThreadTestCase(unittest.TestCase):
 
     def test_run_init(self):
         # test for network failure or twitter authentication error (no valid twitter credentials in config file)
-        with self.assertRaises(AvivoreTwitterError.TwitterAuthenticationException):
+        with self.assertRaises(AvivoreError.TwitterAuthenticationException):
             self.assertIsNone(self.query_thread_instance.init_run())
 
     @unittest.skip('This test assumes there are valid twitter credentials in sample_conf.db!')

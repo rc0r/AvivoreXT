@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from AvivoreXT import AvivoreConfig, Compat, Helper, AvivoreTwitterError
+from AvivoreXT import AvivoreConfig, Compat, Helper, AvivoreError
 from twitter import *
 from twitter.stream import Timeout, HeartbeatTimeout, Hangup
 if Compat.is_python3():
@@ -31,9 +31,9 @@ class Avivore:
                                                      self.avivore_config.twitter_consumer_secret)
             self.twitter_instance = Twitter(auth=OAuth2(bearer_token=self.twitter_bearer_token))
         except (TwitterHTTPError, URLError):
-            raise AvivoreTwitterError.TwitterAuthenticationException('Network error, check your connection!')
+            raise AvivoreError.TwitterAuthenticationException('Network error, check your connection!')
         except Exception as e:
-            raise AvivoreTwitterError.TwitterAuthenticationException(e)
+            raise AvivoreError.TwitterAuthenticationException(e)
 
         return self.twitter_instance
 

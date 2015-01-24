@@ -1,6 +1,15 @@
 # -*- coding: utf8 -*-
 
 
+class AvivoreError(Exception):
+    """
+    Generic Avivore Exception class
+    """
+    def __init__(self, msg):
+        self.msg = msg
+        Exception.__init__(self, '%s' % msg)
+
+
 class TwitterException(Exception):
     """
     Generic Twitter exception class
