@@ -1,3 +1,18 @@
+# **NOTE: FUTURE DEVELOPMENT WILL HAPPEN THROUGH [GITLAB](https://gitlab.com/rc0r/AvivoreXT)!**
+
+As of June, 6th 2018 this project moved to [Gitlab](https://gitlab.com/rc0r/AvivoreXT) that's why this repository is
+archived and thus read-only until it is entirely removed from Github. Repository removal is scheduled for September,
+15th 2018.
+
+Please report issues and request your merges through the new [project home](https://gitlab.com/rc0r/AvivoreXT). All
+further discussion - even for existing issues - will take place there.
+
+Thank you,
+
+rc0r
+
+
+
 #AvivoreXT [![Build Status](https://travis-ci.org/rc0r/AvivoreXT.svg)](https://travis-ci.org/rc0r/AvivoreXT)[![Coverage Status](https://img.shields.io/coveralls/rc0r/AvivoreXT.svg)](https://coveralls.io/r/rc0r/AvivoreXT)
 
 ###The Twitter-searching Data Miner
